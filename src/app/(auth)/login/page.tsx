@@ -11,7 +11,7 @@ import {
   Stethoscope,
   User,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema, type LoginInput } from "@/validations/schemas";
 import { apiClient } from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
@@ -52,6 +52,8 @@ const DEMO_ACCOUNTS = [
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get("from");
   const { setAccessToken, setUser } = useAuthStore();
 
   const {
@@ -75,12 +77,14 @@ export default function LoginPage() {
       // Set a lightweight role cookie so Next.js edge middleware can enforce RBAC
       document.cookie = `medivantage-role=${user.role}; path=/; SameSite=Lax`;
 
+      // Redirect to the page they were trying to visit, or their dashboard
       const roleRoutes: Record<string, string> = {
         patient: "/patient",
         doctor: "/doctor",
         admin: "/admin",
       };
-      router.push(roleRoutes[user.role] ?? "/patient");
+      const destination = fromPath ?? roleRoutes[user.role] ?? "/patient";
+      router.push(destination);
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data

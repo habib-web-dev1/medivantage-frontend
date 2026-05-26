@@ -63,14 +63,7 @@ export function proxy(request: NextRequest) {
   const userRole = getRoleFromCookie(request);
 
   const requiredRole = getRequiredRole(pathname);
-
-  // Protected routes that require any authenticated user (no specific role)
-  const authOnlyPaths = ["/doctors", "/medicines"];
-  const requiresAuth =
-    requiredRole !== null ||
-    authOnlyPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-
-  if (!requiresAuth) return NextResponse.next();
+  if (requiredRole === null) return NextResponse.next();
 
   if (!userRole) {
     const loginUrl = new URL("/login", request.url);
@@ -78,8 +71,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Role-specific routes — redirect to own dashboard if wrong role
-  if (requiredRole !== null && userRole !== requiredRole) {
+  if (userRole !== requiredRole) {
     return NextResponse.redirect(new URL(`/${userRole}`, request.url));
   }
 
@@ -87,13 +79,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/patient/:path*",
-    "/doctor/:path*",
-    "/admin/:path*",
-    "/doctors",
-    "/doctors/:path*",
-    "/medicines",
-    "/medicines/:path*",
-  ],
+  matcher: ["/patient/:path*", "/doctor/:path*", "/admin/:path*"],
 };
