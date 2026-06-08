@@ -10,7 +10,15 @@
 
 > A modern, AI-driven healthcare platform built with Next.js 16. Patients book appointments and download prescriptions. Doctors manage their queue and issue digital prescriptions. Admins oversee the entire platform.
 
-**Live App:** [https://medivantage.vercel.app](https://medivantage.vercel.app)
+---
+
+## 🔗 Links
+
+| Resource               | URL                                                    |
+| ---------------------- | ------------------------------------------------------ |
+| 🌐 Live Application    | https://medivantage.vercel.app                         |
+| 📦 Frontend Repository | https://github.com/habib-web-dev1/medivantage-frontend |
+| 🔧 Backend Repository  | https://github.com/habib-web-dev1/medivantage-backend  |
 
 ---
 
@@ -130,7 +138,7 @@ medivantage-frontend/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/medivantage-frontend.git
+git clone https://github.com/habib-web-dev1/medivantage-frontend.git
 cd medivantage-frontend
 
 # Install dependencies
@@ -164,18 +172,6 @@ NEXT_PUBLIC_ENV=development
 ```
 
 **For Vercel deployment**, set `NEXT_PUBLIC_API_URL=https://medivantage-backend.vercel.app/api/v1` in the Vercel dashboard under **Settings → Environment Variables**.
-
----
-
-## Demo Accounts
-
-The login page includes one-click demo buttons that pre-fill credentials:
-
-| Role    | Email                           | Password      |
-| ------- | ------------------------------- | ------------- |
-| Admin   | `admin@gmail.com`               | `Admin123`    |
-| Doctor  | `sarah.jenkins@medivantage.com` | `Doctor@1234` |
-| Patient | `patient@gmail.com`             | `Patient123`  |
 
 ---
 
@@ -273,6 +269,12 @@ npm run test:coverage # Generate coverage report
 
 ---
 
-## License
+## 📄 License
 
-MIT
+This project is for portfolio and demonstration purposes.
+
+---
+
+<div align="center">
+  Built with ❤️ by <a href="https://github.com/habib-web-dev1">habib-web-dev1</a>
+</div>
