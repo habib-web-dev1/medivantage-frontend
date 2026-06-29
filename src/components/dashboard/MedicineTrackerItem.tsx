@@ -41,12 +41,11 @@ export function MedicineTrackerItem({
   const active = isActive(entry.prescriptionDate, entry.duration);
   const storageKey = getTakenKey(userId, entry.medicineId);
 
-  const [takenToday, setTakenToday] = useState(false);
-
-  // Read from localStorage on mount (client-side only)
-  useEffect(() => {
-    setTakenToday(localStorage.getItem(storageKey) === "true");
-  }, [storageKey]);
+  const [takenToday, setTakenToday] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      localStorage.getItem(storageKey) === "true",
+  );
 
   // Listen for storage events from other components
   useEffect(() => {

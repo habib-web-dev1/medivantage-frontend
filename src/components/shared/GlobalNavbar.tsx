@@ -13,17 +13,23 @@ export default function GlobalNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const [menuOpenPathname, setMenuOpenPathname] = useState(pathname);
+
+  // Derived: if pathname changed since menu was opened, treat it as closed
+  const isMenuOpen = menuOpen && menuOpenPathname === pathname;
+
+  const openMenu = () => {
+    setMenuOpenPathname(pathname);
+    setMenuOpen(true);
+  };
+  const closeMenu = () => setMenuOpen(false);
+  const toggleMenu = () => (isMenuOpen ? closeMenu() : openMenu());
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
 
   const handleLogout = () => {
     clearAuth();
@@ -138,19 +144,19 @@ export default function GlobalNavbar() {
         <DarkModeToggle />
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={toggleMenu}
           className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           aria-label="Toggle menu"
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={menuOpen ? "x" : "menu"}
+              key={isMenuOpen ? "x" : "menu"}
               initial={{ rotate: -90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              {menuOpen ? (
+              {isMenuOpen ? (
                 <X className="w-5 h-5" />
               ) : (
                 <Menu className="w-5 h-5" />
@@ -162,7 +168,7 @@ export default function GlobalNavbar() {
 
       {/* Mobile drawer */}
       <AnimatePresence>
-        {menuOpen && (
+        {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}

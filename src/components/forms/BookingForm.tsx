@@ -44,7 +44,6 @@ export function BookingForm({ initialSymptoms, onSuccess }: BookingFormProps) {
 
   const {
     register,
-    handleSubmit,
     watch,
     setValue,
     formState: { errors, isSubmitting },
@@ -114,11 +113,6 @@ export function BookingForm({ initialSymptoms, onSuccess }: BookingFormProps) {
   const canProceedStep2 = watchedSymptomBrief.trim().length > 0;
 
   const canProceed = [canProceedStep0, canProceedStep1, canProceedStep2, true];
-
-  const onSubmit = handleSubmit((data) => {
-    setSubmitError("");
-    mutation.mutate(data);
-  });
 
   return (
     <div className="space-y-6">

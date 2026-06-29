@@ -23,6 +23,10 @@ interface LoginResponse {
   data: UserType;
 }
 
+function setRoleCookie(role: string) {
+  document.cookie = `medivantage-role=${role}; path=/; SameSite=Lax`;
+}
+
 const DEMO_ACCOUNTS = [
   {
     label: "Doctor Demo",
@@ -75,7 +79,7 @@ function LoginForm() {
       setAccessToken(accessToken);
       setUser(user);
 
-      document.cookie = `medivantage-role=${user.role}; path=/; SameSite=Lax`;
+      setRoleCookie(user.role);
 
       const roleRoutes: Record<string, string> = {
         patient: "/patient",

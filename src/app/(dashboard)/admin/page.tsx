@@ -6,7 +6,6 @@ import {
   Calendar,
   Pill,
   CheckCircle,
-  AlertCircle,
   TrendingUp,
   Shield,
   Activity,

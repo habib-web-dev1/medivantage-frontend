@@ -19,11 +19,14 @@ const EMERGENCY_COLORS: Record<string, string> = {
   critical: "bg-red-500/10 text-red-500 border-red-500/20",
 };
 
-export function SymptomCheckerModal({
-  isOpen,
+// Inner component — mounted only when isOpen is true, so state auto-resets on close
+function SymptomCheckerContent({
   onClose,
   onBookConsultation,
-}: SymptomCheckerModalProps) {
+}: {
+  onClose: () => void;
+  onBookConsultation: (topResult: EngineResult, symptoms: string[]) => void;
+}) {
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -35,24 +38,14 @@ export function SymptomCheckerModal({
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    if (isOpen) document.addEventListener("keydown", handler);
+    document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
-  // Focus input on open
+  // Focus input on step 1
   useEffect(() => {
-    if (isOpen && step === 1) setTimeout(() => inputRef.current?.focus(), 100);
-  }, [isOpen, step]);
-
-  // Reset on close
-  useEffect(() => {
-    if (!isOpen) {
-      setSymptoms([]);
-      setInputValue("");
-      setStep(1);
-      setResults([]);
-    }
-  }, [isOpen]);
+    if (step === 1) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [step]);
 
   const mutation = useMutation({
     mutationFn: async (syms: string[]) => {
@@ -89,8 +82,6 @@ export function SymptomCheckerModal({
 
   const removeSymptom = (sym: string) =>
     setSymptoms((prev) => prev.filter((s) => s !== sym));
-
-  if (!isOpen) return null;
 
   return (
     <div
@@ -286,5 +277,21 @@ export function SymptomCheckerModal({
         </motion.div>
       </AnimatePresence>
     </div>
+  );
+}
+
+// Outer wrapper — only mounts SymptomCheckerContent when open,
+// so all inner state is automatically reset when the modal closes.
+export function SymptomCheckerModal({
+  isOpen,
+  onClose,
+  onBookConsultation,
+}: SymptomCheckerModalProps) {
+  if (!isOpen) return null;
+  return (
+    <SymptomCheckerContent
+      onClose={onClose}
+      onBookConsultation={onBookConsultation}
+    />
   );
 }

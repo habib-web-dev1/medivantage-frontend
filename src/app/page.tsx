@@ -75,16 +75,17 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
+const HERO_WORDS = ["Diagnostics,", "Insights,", "Prescriptions,"];
+
 function HeroSection() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 400], [0, -80]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
-  const words = ["Diagnostics,", "Insights,", "Prescriptions,"];
   const [wordIdx, setWordIdx] = useState(0);
   useEffect(() => {
     const t = setInterval(
-      () => setWordIdx((i) => (i + 1) % words.length),
+      () => setWordIdx((i) => (i + 1) % HERO_WORDS.length),
       2200,
     );
     return () => clearInterval(t);
@@ -156,7 +157,7 @@ function HeroSection() {
               transition={{ duration: 0.4 }}
               className="text-medical-500"
             >
-              {words[wordIdx]}
+              {HERO_WORDS[wordIdx]}
             </motion.span>
           </span>
           <br />

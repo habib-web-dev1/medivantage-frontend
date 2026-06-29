@@ -9,7 +9,6 @@ import {
   Users,
   TrendingUp,
   Stethoscope,
-  ChevronRight,
   FileText,
   Activity,
   Check,
