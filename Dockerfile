@@ -3,11 +3,9 @@ FROM node:20-alpine AS deps
 
 WORKDIR /app
 
-# Use npm install instead of npm ci to avoid lockfile version mismatch between
-# the local npm (v11) and the container npm (v10). The lockfile is regenerated
-# fresh inside the image so the result is always deterministic.
-COPY package.json ./
-RUN npm install
+# Copy lockfile + manifest so npm ci gets a deterministic install
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # ── Stage 2: Build ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
