@@ -5,6 +5,8 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-20-2496ED?style=flat-square&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white" />
   <img src="https://img.shields.io/badge/Deployed-Vercel-000000?style=flat-square&logo=vercel&logoColor=white" />
 </p>
 
@@ -29,10 +31,12 @@
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
-- [Demo Accounts](#demo-accounts)
 - [Pages & Routes](#pages--routes)
 - [Architecture Notes](#architecture-notes)
+- [Docker](#docker)
+- [CI/CD](#cicd)
 - [Deployment](#deployment)
+- [Scripts](#scripts)
 
 ---
 
@@ -64,6 +68,8 @@
 | HTTP          | Axios (with JWT interceptor + silent token refresh) |
 | Real-time     | Socket.io Client 4                                  |
 | Testing       | Vitest + Testing Library                            |
+| Containerize  | Docker (multi-stage, Node 20 Alpine)                |
+| CI/CD         | GitHub Actions                                      |
 | Deployment    | Vercel                                              |
 
 ---
@@ -72,6 +78,9 @@
 
 ```
 medivantage-frontend/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI pipeline
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/
@@ -119,8 +128,8 @@ medivantage-frontend/
 │   │   └── schemas.ts          # Zod validation schemas
 │   └── proxy.ts                # Next.js middleware (RBAC route guard)
 ├── public/
+├── Dockerfile                  # Multi-stage production Docker image
 ├── next.config.ts
-├── vercel.json
 ├── tailwind.config.ts
 └── .env.local.example
 ```
@@ -236,6 +245,65 @@ The auth store persists to `localStorage` so the access token survives page refr
 
 ---
 
+## Docker
+
+The frontend ships with a **3-stage Dockerfile** optimised for production:
+
+| Stage     | Base Image     | Purpose                                        |
+| --------- | -------------- | ---------------------------------------------- |
+| `deps`    | node:20-alpine | Install dependencies with `npm ci`             |
+| `builder` | node:20-alpine | Compile the Next.js app (`npm run build`)      |
+| `runner`  | node:20-alpine | Serve the standalone output as a non-root user |
+
+The final image only contains the compiled Next.js standalone output — no source files or dev dependencies.
+
+### Build & run locally
+
+```bash
+# Build the image
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1 \
+  -t medivantage-frontend .
+
+# Run the container
+docker run -p 3000:3000 medivantage-frontend
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+### Run with Docker Compose
+
+From the repository root (alongside the backend):
+
+```bash
+docker compose up --build
+```
+
+---
+
+## CI/CD
+
+Continuous integration is handled by **GitHub Actions** (`.github/workflows/ci.yml`).
+
+### Pipeline — triggered on push to `main`
+
+```
+push to main
+    └── test-build
+            ├── Checkout repository
+            ├── Setup Node.js 24
+            ├── Verify package-lock.json integrity
+            └── Install dependencies (npm ci)
+```
+
+| Job          | Trigger        | Steps                               |
+| ------------ | -------------- | ----------------------------------- |
+| `test-build` | push to `main` | checkout → setup Node 24 → `npm ci` |
+
+> The pipeline validates that the dependency tree installs cleanly on every push. A full build and Docker publish step can be added when a Docker Hub or GHCR secret is configured (see the backend pipeline for reference).
+
+---
+
 ## Deployment
 
 ### Vercel (Recommended)
@@ -253,17 +321,27 @@ vercel --prod
 NEXT_PUBLIC_API_URL=https://medivantage-backend.vercel.app/api/v1
 ```
 
+### Docker (Self-hosted)
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_API_URL=https://your-backend-url/api/v1 \
+  -t medivantage-frontend .
+
+docker run -d -p 3000:3000 --name medivantage-frontend medivantage-frontend
+```
+
 ---
 
 ## Scripts
 
 ```bash
-npm run dev          # Start dev server (Turbopack)
-npm run build        # Production build
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run test         # Run Vitest test suite (single run)
-npm run test:watch   # Run Vitest in watch mode
+npm run dev           # Start dev server (Turbopack)
+npm run build         # Production build
+npm run start         # Start production server
+npm run lint          # Run ESLint
+npm run test          # Run Vitest test suite (single run)
+npm run test:watch    # Run Vitest in watch mode
 npm run test:coverage # Generate coverage report
 ```
 
